@@ -390,5 +390,8 @@ fn main() -> AnyHowResult<()> {
             println!("{: <16} | {: >12.2}", name, twitter);
         }
     );
+
+
+
     Ok(())
 }
