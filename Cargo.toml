@@ -1,0 +1,10 @@
+[package]
+name = "data_structure_and_analysis"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+anyhow = "1.0.88"
+serde = "1.0.210"
+serde_json = "1.0.128"
+itertools = "0.13.0"
