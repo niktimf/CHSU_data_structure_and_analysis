@@ -29,6 +29,20 @@ trait IteratorExt: Iterator {
 
 impl<I: Iterator> IteratorExt for I {}
 
+fn sort_by_column<T: PartialOrd, U>(data: &[U], column_selector: impl Fn(&U) -> T) -> Vec<U>
+where
+    U: Clone,
+{
+    data.iter()
+        .sorted_by(|a, b| {
+            column_selector(b)
+                .partial_cmp(&column_selector(a))
+                .unwrap_or(std::cmp::Ordering::Equal)
+        })
+        .cloned()
+        .collect()
+}
+
 fn main() -> AnyHowResult<()> {
     let names_ru = [
         "Ухмыляюсь",
@@ -53,29 +67,6 @@ fn main() -> AnyHowResult<()> {
         "Переработка",
     ];
 
-    let names_eng = [
-        "Grinning",
-        "Beaming",
-        "ROFL",
-        "Tears of Joy",
-        "Winking",
-        "Happy",
-        "Heart Eyes",
-        "Kissing",
-        "Thinking",
-        "Unamused",
-        "Sunglasses",
-        "Loudly Crying",
-        "Kiss Mark",
-        "Two Hearts",
-        "Heart",
-        "Heart Suit",
-        "Thumbs Up",
-        "Shrugging",
-        "Fire",
-        "Recycle",
-    ];
-
     let emojixpress = [
         2.26, 19.1, 25.6, 233.0, 15.2, 22.7, 64.6, 87.5, 6.81, 6.0, 4.72, 24.7, 21.7, 10.0, 118.0,
         3.31, 23.1, 1.74, 4.5, 0.0333,
@@ -97,16 +88,18 @@ fn main() -> AnyHowResult<()> {
         .zip(instagram.iter())
         .zip(twitter.iter())
         .map(|(((name, &emojixpress), &instagram), &twitter)| {
-            (name.to_string(), emojixpress, instagram, twitter) // Разыменовываем ссылки на строки и числа
+            (name.to_string(), emojixpress, instagram, twitter)
         })
         .collect();
-    println!("{:?}\n", emoji_rows);
+    println!("{:?}", emoji_rows);
+    println!("\n");
 
     // Задание 1.
     // Создайте список с элементами первой строки таблицы и распечатайте его на экране.
     let first_row: Vec<_> = emoji_rows.iter().map(|row| row.0.to_string()).collect();
     println!("Задание 1.");
-    println!("Первая строка таблицы: {:?}\n", first_row);
+    println!("Первая строка таблицы: {:?}", first_row);
+    println!("\n");
 
     // Задание 2.
     // Найдите сумму первых пяти элементов подготовленного списка emojixpress.
@@ -116,6 +109,7 @@ fn main() -> AnyHowResult<()> {
         "Сумма первых пяти элементов списка emojixpress: {:.2}",
         first_five_sum_emojixpress
     );
+    println!("\n");
 
     // Задание 3.
     // Всего в сообщениях с клавиатурой EmojiXpress отправлено 1.72 миллиарда, или
@@ -138,22 +132,24 @@ fn main() -> AnyHowResult<()> {
 
     println!();
     println!(
-        "Всего отправлено эмодзи в emojixpress: {:.2} млн.\n",
+        "Всего отправлено эмодзи в emojixpress: {:.2} млн.",
         TOTAL_EMOJI_IN_EMOJIXPRESS
     );
+    println!("\n");
 
     // Задание 4.
     // Посчитайте суммарное количество первых пяти эмодзи оператором присваивания
     // со сложением.
     let mut first_five_sum_emojixpress_assign = 0.0;
-    for i in 0..5 {
-        first_five_sum_emojixpress_assign += emojixpress[i];
+    for &value in emojixpress.iter().take(5) {
+        first_five_sum_emojixpress_assign += value;
     }
     println!("Задание 4.");
     println!(
-        "Сумма первых пяти элементов списка emojixpress (оператор присваивания): {:.2}\n",
+        "Сумма первых пяти элементов списка emojixpress (оператор присваивания): {:.2}",
         first_five_sum_emojixpress_assign
     );
+    println!("\n");
 
     // Задание 5.
     // Оценим, какую долю в EmojiXpress составляют выбранные нами эмодзи.
@@ -171,9 +167,10 @@ fn main() -> AnyHowResult<()> {
     let sum_twitter: f64 = twitter.iter().sum();
     let selected_emojis_share_twitter = sum_twitter / TOTAL_EMOJI_IN_TWITTER * 100.0;
     println!(
-        "Доля выбранных эмодзи в Twitter: {:.1}%\n",
+        "Доля выбранных эмодзи в Twitter: {:.1}%",
         selected_emojis_share_twitter
     );
+    println!("\n");
 
     // Задание 6.
     // Добавьте в таблицу еще две строки: для эмодзи «Слёзы радости» и «Подмигиваю
@@ -188,7 +185,8 @@ fn main() -> AnyHowResult<()> {
         })
         .collect();
     println!("Задание 6.");
-    println!("Первые пять строк таблицы: {:?}\n", first_five_emoji_rows);
+    println!("Первые пять строк таблицы: {:?}", first_five_emoji_rows);
+    println!("\n");
 
     // Задание 7.
     // Допишите код, чтобы он распечатывал всю таблицу в таком формате:
@@ -217,11 +215,9 @@ fn main() -> AnyHowResult<()> {
     // • с выравниванием по правому краю;
     // • с заполнением пустот пробелами
     println!("Задание 8.");
-    println!(
-        "|{:>15}|{:>15}|{:>15}|{:>15}|",
-        "Название", "EmojiXpress", "Instagram", "Твиттер"
-    );
-    println!("---------------------------------------------------------------");
+    println!("|{:>15}|{:>15}|{:>15}|{:>15}|",
+             "Название", "EmojiXpress", "Instagram", "Твиттер");
+    println!("-----------------------------------------------------------------");
     emoji_rows.iter().for_each(|row| {
         println!(
             "|{:>15}|{:>15.2}|{:>15.2}|{:>15.2}|",
@@ -238,13 +234,13 @@ fn main() -> AnyHowResult<()> {
     // • с точностью до двух знаков после запятой.
     println!("Задание 9.");
     println!(
-        "|{:<15}|{:<15}|{:<15}|{:<15}|",
+        "|{:<12}|{:<12}|{:<12}|{:<12}|",
         "Название", "EmojiXpress", "Instagram", "Твиттер"
     );
     println!("---------------------------------------------------------------");
     emoji_rows.iter().for_each(|row| {
         println!(
-            "|{:<15}|{:<12.2}|{:<12.2}|{:<12.2}|",
+            "|{:<12}|{:<12.2}|{:<12.2}|{:<12.2}|",
             row.0, row.1, row.2, row.3
         );
     });
@@ -253,7 +249,7 @@ fn main() -> AnyHowResult<()> {
     // Задание 10.
     println!("Задание 10.");
     println!("Название эмодзи  | EmojiXpress, млн | Instagram, млн | Твиттер, млн");
-    println!("-------------------------------------------------------------------------------------------------");
+    println!("-------------------------------------------------------------------");
     emoji_rows.iter().for_each(|row| {
         println!(
             "{:<16} | {:<16.2} | {:<14.2} | {:<12.2}",
@@ -279,9 +275,10 @@ fn main() -> AnyHowResult<()> {
         avg_instagram
     );
     println!(
-        "Среднее количество сообщений в Twitter: {:.2} млн.\n",
+        "Среднее количество сообщений в Twitter: {:.2} млн.",
         avg_twitter
     );
+    println!("\n");
 
     // Задание 13.
     // Посчитайте для каждого эмодзи соотношение его количества в Твиттере к количеству в Instagram.
@@ -292,7 +289,7 @@ fn main() -> AnyHowResult<()> {
         "{: <16} | {: >29}",
         "Название эмодзи", "Соотношение Твиттер/Instagram"
     );
-    println!("------------------------------------------------------------------------");
+    println!("------------------------------------------------");
     emoji_rows.iter().for_each(|(name, _, instagram, twitter)| {
         let twitter_instagram_ratio = if *instagram != 0.0 {
             twitter / instagram
@@ -325,7 +322,8 @@ fn main() -> AnyHowResult<()> {
             }
         })
         .collect();
-    println!("|{}\n", formatted_header);
+    println!("|{}", formatted_header);
+    println!("\n");
 
     // Задание 15.
     // Расставьте названия всех эмодзи по алфавиту и выведите список на экран, печатая каждый элемент с новой строки.
@@ -340,10 +338,7 @@ fn main() -> AnyHowResult<()> {
     // в наглядном формате (см. прекод).
     // Обратите внимание, какие эмодзи наиболее популярны на этой платформе.
     println!("Задание 16.");
-    let sorted_by_instagram_reverse: Vec<_> = emoji_rows
-        .iter()
-        .sorted_by(|a, b| b.2.partial_cmp(&a.2).unwrap_or(std::cmp::Ordering::Equal))
-        .collect();
+    let sorted_by_instagram_reverse: Vec<_> = sort_by_column(&emoji_rows, |row| row.2);
     println!("Название эмодзи  | EmojiXpress, млн | Instagram, млн | Твиттер, млн");
     println!("-------------------------------------------------------------------");
     sorted_by_instagram_reverse
@@ -357,15 +352,12 @@ fn main() -> AnyHowResult<()> {
     println!("\n");
 
     // Задание 17.
-    //  Отсортируйте таблицу по столбцу «Твиттер, млн» по убыванию и выведите её в
+    // Отсортируйте таблицу по столбцу «Твиттер, млн» по убыванию и выведите её в
     // наглядном формате (см. прекод).
     // Обратите внимание, какие эмодзи наиболее популярны на этой платформе.
     // Какой артефакт (необычный объект) выделяется особо?
     println!("Задание 17.");
-    let sorted_by_twitter_reverse: Vec<_> = emoji_rows
-        .iter()
-        .sorted_by(|a, b| b.3.partial_cmp(&a.3).unwrap_or(std::cmp::Ordering::Equal))
-        .collect();
+    let sorted_by_twitter_reverse: Vec<_> = sort_by_column(&emoji_rows, |row| row.3);
     println!("Название эмодзи  | EmojiXpress, млн | Instagram, млн | Твиттер, млн");
     println!("-------------------------------------------------------------------");
     sorted_by_twitter_reverse
@@ -384,20 +376,17 @@ fn main() -> AnyHowResult<()> {
     println!("Задание 18.");
     let selected_emojis = &names_ru[6..9];
     println!(
-        "Срез из 'Глаза-сердца', 'Целую', 'Задумчивость': {:?}\n",
+        "Срез из 'Глаза-сердца', 'Целую', 'Задумчивость': {:?}",
         selected_emojis
     );
+    println!("\n");
 
     // Задание 19.
     // Обновите код, чтобы в каждом из трёх случаев выводилась не вся таблица, а только её первые пять строк.
     println!("Задание 19.");
-    let sorted_by_emojixpress_reverse: Vec<_> = emoji_rows
-        .iter()
-        .sorted_by(|a, b| b.1.partial_cmp(&a.1).unwrap_or(std::cmp::Ordering::Equal))
-        .collect();
-
+    let sorted_by_emojixpress_reverse: Vec<_> = sort_by_column(&emoji_rows, |row| row.1);
     println!("Название эмодзи  | EmojiXpress, млн");
-    println!("----------------------------------");
+    println!("-----------------------------------");
     sorted_by_emojixpress_reverse
         .iter()
         .take(5)
@@ -407,7 +396,7 @@ fn main() -> AnyHowResult<()> {
     println!("\n");
 
     println!("Название эмодзи  | Instagram, млн");
-    println!("--------------------------------");
+    println!("---------------------------------");
     sorted_by_instagram_reverse
         .iter()
         .take(5)
@@ -417,7 +406,7 @@ fn main() -> AnyHowResult<()> {
     println!("\n");
 
     println!("Название эмодзи  | Твиттер, млн");
-    println!("------------------------------");
+    println!("-------------------------------");
     sorted_by_twitter_reverse
         .iter()
         .take(5)
@@ -431,7 +420,8 @@ fn main() -> AnyHowResult<()> {
     // Напечатайте на экране результат.
     println!("Задание 20.");
     let twitter_updated: Vec<_> = twitter.iter().map(|x| x + 0.001).collect();
-    println!("Измененный Twitter: {:?}\n", twitter_updated);
+    println!("Измененный Twitter: {:?}", twitter_updated);
+    println!("\n");
 
     // Задание 21.
     // Добавьте в список названий emoji ещё три следующих элемента.
@@ -443,7 +433,8 @@ fn main() -> AnyHowResult<()> {
         .chain(["Солнечные очки", "Громко плачу", "След от поцелуя"].iter())
         .cloned()
         .collect();
-    println!("Восемь эмоджи: {:?}\n", eight_emoji);
+    println!("Восемь эмоджи: {:?}", eight_emoji);
+    println!("\n");
 
     // Задание 22.
     // Создайте в таблице новый столбец: суммарное количество использований на всех платформах.
@@ -462,10 +453,7 @@ fn main() -> AnyHowResult<()> {
         })
         .collect();
 
-    let sorted_by_total_reverse: Vec<_> = emoji_rows_with_total
-        .iter()
-        .sorted_by(|a, b| b.4.partial_cmp(&a.4).unwrap_or(std::cmp::Ordering::Equal))
-        .collect();
+    let sorted_by_total_reverse: Vec<_> = sort_by_column(&emoji_rows_with_total, |row| row.4);
     println!("Название эмодзи  | EmojiXpress, млн | Instagram, млн | Твиттер, млн | Сумма");
     println!("---------------------------------------------------------------------------");
     sorted_by_total_reverse.iter().take(5).for_each(
@@ -479,6 +467,83 @@ fn main() -> AnyHowResult<()> {
     println!("\n");
 
     // Задание 23.
+    // Смотри задание 11-12.
 
+    // Задание 24.
+    // Вычислите «индекс использования» для каждого эмодзи.
+    // Получившийся столбец с этими индексами добавьте к таблице.
+    println!("Задание 24.");
+    let emoji_rows_with_usage_index: Vec<(String, f64, f64, f64, f64)> = emoji_rows
+        .iter()
+        .map(|(name, emojixpress, instagram, twitter)| {
+            let normalized_emojixpress = *emojixpress / avg_emjxpress;
+            let normalized_instagram = *instagram / avg_instagram;
+            let normalized_twitter = *twitter / avg_twitter;
+            let usage_index = normalized_emojixpress + normalized_instagram + normalized_twitter;
+            (
+                name.to_string(),
+                *emojixpress,
+                *instagram,
+                *twitter,
+                usage_index,
+            )
+        })
+        .collect();
+    println!("Название эмодзи  | Индекс использования");
+    println!("---------------------------------------");
+    emoji_rows_with_usage_index
+        .iter()
+        .for_each(|(name, _, _, _, usage_index)| {
+            println!("{: <16} | {: >20.2}", name, usage_index);
+        });
+    println!("\n");
+
+    // Задание 25.
+    // Финальный шаг для получения отчёта:
+    // отсортируйте таблицу по новому столбцу и напечатайте на экране только первые пять элементов.
+    println!("Задание 25.");
+    let sorted_by_emojixpress: Vec<_> = sort_by_column(&emoji_rows_with_usage_index, |row| row.1);
+    println!("Название эмодзи  | Emojixpress, млн");
+    println!("-----------------------------------");
+    sorted_by_emojixpress
+        .iter()
+        .take(5)
+        .for_each(|(name, emojixpress, _, _, _)| {
+            println!("{: <16} | {: >14.2} |", name, emojixpress);
+        });
+    println!("\n");
+
+    let sorted_by_instagram: Vec<_> = sort_by_column(&emoji_rows_with_usage_index, |row| row.2);
+    println!("Название эмодзи  | Instagram, млн");
+    println!("---------------------------------");
+    sorted_by_instagram
+        .iter()
+        .take(5)
+        .for_each(|(name, _, instagram, _, _)| {
+            println!("{: <16} | {: >12.2} |", name, instagram);
+        });
+    println!("\n");
+
+    let sorted_by_twitter: Vec<_> = sort_by_column(&emoji_rows_with_usage_index, |row| row.3);
+    println!("Название эмодзи  | Twitter, млн");
+    println!("-------------------------------");
+    sorted_by_twitter
+        .iter()
+        .take(5)
+        .for_each(|(name, _, _, twitter, _)| {
+            println!("{: <16} | {: >10.2} |", name, twitter);
+        });
+    println!("\n");
+
+    let sorted_by_usage_index = sort_by_column(&emoji_rows_with_usage_index, |row| row.4);
+    println!("Название эмодзи  | Индекс использования");
+    println!("---------------------------------------");
+    sorted_by_usage_index
+        .iter()
+        .take(5)
+        .for_each(|(name, _, _, _, usage_index)| {
+            println!("{: <16} | {: >18.2} |", name, usage_index);
+        });
+    println!("\n");
     Ok(())
 }
