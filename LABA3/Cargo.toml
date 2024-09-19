@@ -1,0 +1,9 @@
+[package]
+name = "LABA3"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+polars = "0.43.1"
+itertools = "0.13.0"
+anyhow = "1.0.89"
