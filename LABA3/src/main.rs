@@ -78,10 +78,61 @@ fn main() -> AnyHowResult<()> {
     // Задание 14.
     // Получите таблицу только с жанром rock и сохраните её в переменной rock.
     println!("Задание 14.");
-    let rock = genre_fight.filter(&genre_fight.column("genre")?.equal("rock")?)?;
+    let rock = df.filter(&genre_fight.column("genre")?.equal("rock")?)?;
     println!("{}", rock);
     println!("\n");
 
+    // Задание 15.
+    // Сохраните столбец 'total play' таблицы rock в переменной rock_time.
+    println!("Задание 15.");
+    let rock_time = rock.column("total play")?;
+    println!("{}", rock_time);
+    println!("\n");
 
+    // Задание 16.
+    // Обратитесь к новой Series c именем rock_time и посчитайте количество треков
+    // жанра рок, пропущенных в течение 5 секунд. Логическим условием укажите rock_time <= 5.
+    // Результат сохраните в переменной rock_haters
+    println!("Задание 16.");
+    let rock_haters = rock_time.filter(&rock_time.lt_eq(5.0)?)?.iter().count();
+    println!("{}", rock_haters);
+    println!("\n");
+
+    // Задание 17.
+    // Получите таблицу только с жанром pop и сохраните её в переменной pop.
+    println!("Задание 17.");
+    let pop = df.filter(&genre_fight.column("genre")?.equal("pop")?)?;
+    println!("{}", pop);
+    println!("\n");
+
+    // Задание 18.
+    // Сохраните столбец 'total play' таблицы pop в переменной pop_time.
+    println!("Задание 18.");
+    let pop_time = pop.column("total play")?;
+    println!("{}", pop_time);
+    println!("\n");
+
+    // Задание 19.
+    // Обратитесь к новой Series c именем pop_time и посчитайте количество треков
+    // жанра поп, пропущенных в течение 5 секунд. Логическим условием укажите pop_time <= 5.
+    // Результат сохраните в переменной pop_haters
+    println!("Задание 19.");
+    let pop_haters = pop_time.filter(&pop_time.lt_eq(5.0)?)?.iter().count();
+    println!("{}", pop_haters);
+    println!("\n");
+
+    // Задание 20.
+    // Для обоих жанров посчитайте долю быстро пропущенных пользователями композиций в процентах.
+    // Разделите количество треков, которые пользователи пропустили
+    // — соответственно rock_haters и pop_haters — на общее количество треков жанра рок и жанра поп.
+    // Общее количество треков жанра равно количеству наблюдений в таблицах rock и pop,
+    // т.е. значению атрибута shape[0] этих таблиц.
+    // Результаты сохраните в переменных rock_skip и pop_skip (от англ. skip, «пропуск»).
+    // Выведите значения новых переменных в процентах с точностью до одного знака после запятой
+    println!("Задание 20.");
+    let rock_skip = (rock_haters as f64 / rock.height() as f64) * 100.0;
+    let pop_skip = (pop_haters as f64 / pop.height() as f64) * 100.0;
+    println!("Доля пропущенных треков жанра рок: {:.1}%", rock_skip);
+    println!("Доля пропущенных треков жанра поп: {:.1}%", pop_skip);
     Ok(())
 }
