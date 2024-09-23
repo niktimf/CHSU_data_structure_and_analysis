@@ -1,0 +1,8 @@
+[package]
+name = "LABA5"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+polars = { version = "0.43.1", features = ["lazy", "string_encoding", "dtype-full", "default", "list_drop_nulls", "propagate_nans", "diff", "strings", "serde"] }
+anyhow = "1.0.89"
